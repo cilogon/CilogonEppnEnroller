@@ -50,11 +50,24 @@ class CilogonEppnEnrollerCoPetitionsController extends CoPetitionsController {
 
     // Find the eppn from the environment.
     $eppn = env('OIDC_CLAIM_eppn');
+
+    // When Google is the IdP we need to construct the eppn
+    // from the OIDC_CLAIM_oidc value. This construction is
+    // deployer specific at this time, so we only do it if
+    // we find the right environment variable signaling us 
+    // to do it.
+    if (empty($eppn)
+        && (env('OIDC_CLAIM_idp') == 'http://google.com/accounts/o8/id')
+        && (!empty(env('OIDC_CLAIM_oidc')))
+        && (!empty(env('GW_ASTRONOMY_GOOGLE_EPPN')))) {
+        $oidc = env('OIDC_CLAIM_oidc');
+        $eppn = $oidc . '@google.com';
+    }
+    
     if (empty($eppn)) {
       $this->log($logPrefix . "Could not find eppn from environment for person with CoPerson Id $coPersonId");
 
-      // Not all IdPs will assert eppn such as the Google gateway, so log the issue
-      // but allow enrollment to continue on.
+      // Not all IdPs will assert eppn, so log the issue but allow enrollment to continue on.
       $this->redirect($onFinish);
       return;
     }
