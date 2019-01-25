@@ -63,6 +63,24 @@ class CilogonEppnEnrollerCoPetitionsController extends CoPetitionsController {
         $oidc = env('OIDC_CLAIM_oidc');
         $eppn = $oidc . '@google.com';
     }
+
+    // When ORCID is the IdP we need to construct the eppn
+    // from the OIDC_CLAIM_oidc value. This construction is
+    // deployer specific at this time, so we only do it if
+    // we find the right environment variable signaling us 
+    // to do it and containing the scope to use.
+    if (empty($eppn)
+        && (env('OIDC_CLAIM_idp') == 'http://orcid.org/oauth/authorize')
+        && (!empty(env('OIDC_CLAIM_oidc')))
+        && (!empty(env('GW_ASTRONOMY_ORCID_EPPN_SCOPE')))) {
+        $oidc = env('OIDC_CLAIM_oidc');
+        $matches = array();
+        preg_match('@^http://orcid\.org/(.*)@', $oidc, $matches);
+        if(count($matches) == 2) {
+          $orcid = trim($matches[1]);
+          $eppn = $orcid . '@' . env('GW_ASTRONOMY_ORCID_EPPN_SCOPE');
+        }
+    }
     
     if (empty($eppn)) {
       $this->log($logPrefix . "Could not find eppn from environment for person with CoPerson Id $coPersonId");
