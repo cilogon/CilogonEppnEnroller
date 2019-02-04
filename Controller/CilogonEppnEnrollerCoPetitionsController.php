@@ -84,6 +84,7 @@ class CilogonEppnEnrollerCoPetitionsController extends CoPetitionsController {
     
     if (empty($eppn)) {
       $this->log($logPrefix . "Could not find eppn from environment for person with CoPerson Id $coPersonId");
+      $this->log($logPrefix . "Environment is " . print_r($_ENV, true));
 
       // Not all IdPs will assert eppn, so log the issue but allow enrollment to continue on.
       $this->redirect($onFinish);
