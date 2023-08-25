@@ -49,31 +49,31 @@ class CilogonEppnEnrollerCoPetitionsController extends CoPetitionsController {
     }
 
     // Find the eppn from the environment.
-    $eppn = env('OIDC_CLAIM_eppn');
+    $eppn = env('REDIRECT_OIDC_CLAIM_eppn');
 
     // When Google is the IdP we need to construct the eppn
-    // from the OIDC_CLAIM_oidc value. This construction is
+    // from the REDIRECT_OIDC_CLAIM_oidc value. This construction is
     // deployer specific at this time, so we only do it if
     // we find the right environment variable signaling us 
     // to do it.
     if (empty($eppn)
-        && (env('OIDC_CLAIM_idp') == 'http://google.com/accounts/o8/id')
-        && (!empty(env('OIDC_CLAIM_oidc')))
+        && (env('REDIRECT_OIDC_CLAIM_idp') == 'http://google.com/accounts/o8/id')
+        && (!empty(env('REDIRECT_OIDC_CLAIM_oidc')))
         && (!empty(env('GW_ASTRONOMY_GOOGLE_EPPN')))) {
-        $oidc = env('OIDC_CLAIM_oidc');
+        $oidc = env('REDIRECT_OIDC_CLAIM_oidc');
         $eppn = $oidc . '@google.com';
     }
 
     // When ORCID is the IdP we need to construct the eppn
-    // from the OIDC_CLAIM_oidc value. This construction is
+    // from the REDIRECT_OIDC_CLAIM_oidc value. This construction is
     // deployer specific at this time, so we only do it if
     // we find the right environment variable signaling us 
     // to do it and containing the scope to use.
     if (empty($eppn)
-        && (env('OIDC_CLAIM_idp') == 'http://orcid.org/oauth/authorize')
-        && (!empty(env('OIDC_CLAIM_oidc')))
+        && (env('REDIRECT_OIDC_CLAIM_idp') == 'http://orcid.org/oauth/authorize')
+        && (!empty(env('REDIRECT_OIDC_CLAIM_oidc')))
         && (!empty(env('GW_ASTRONOMY_ORCID_EPPN_SCOPE')))) {
-        $oidc = env('OIDC_CLAIM_oidc');
+        $oidc = env('REDIRECT_OIDC_CLAIM_oidc');
         $matches = array();
         preg_match('@^http://orcid\.org/(.*)@', $oidc, $matches);
         if(count($matches) == 2) {
